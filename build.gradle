@@ -1,0 +1,165 @@
+import javax.tools.JavaCompiler
+
+group 'org.spring.boot.base'
+version '2.0'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'idea'
+//    可用于spring-boot2打可执行的jar包  java -jar xxx.jar
+//apply plugin: 'org.springframework.boot'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+//    可用于spring-boot2打可执行的jar包  java -jar xxx.jar
+//    dependencies {
+//        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.4.RELEASE")
+//    }
+}
+tasks.withType(JavaCompiler){
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+repositories {
+    jcenter()
+    mavenCentral()
+}
+defaultTasks 'clean', 'jar'
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+    deployerJars
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.6'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
+    compile group: 'com.google.zxing', name: 'core', version: '3.2.1'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'org.aspectj', name: 'aspectjrt', version: '1.8.9'
+    compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.8.9'
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.15'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.38'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '5.1.6.RELEASE'
+    //compile group: 'com.alibaba', name: 'druid', version: '1.0.26'
+    //compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
+    //compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-activemq', version: '2.1.4.RELEASE'
+//    compile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.3.0'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-undertow', version: '2.1.4.RELEASE'
+//    compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '1.3.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.1.4.RELEASE'
+    //compile group: 'org.springframework.cloud', name: 'spring-cloud-config-server', version: '1.3.2.RELEASE'
+
+//    compile 'io.springfox:springfox-swagger-ui:2.4.0'
+//    compile 'io.springfox:springfox-swagger2:2.4.0'
+//    compile 'io.springfox:springfox-bean-validators:2.4.0'
+    compile group: 'org.apache.curator', name: 'curator-framework', version: '2.12.0'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.45'
+
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+    compile group: 'org.quartz-scheduler', name:'quartz', version:'2.2.2'
+    compile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '2.2.3'
+    compile ('org.apache.zookeeper:zookeeper:3.4.6'){
+        exclude group:'org.slf4j'
+        exclude group:'log4j'
+    }
+
+    compile fileTree (dir:'/mnt/libs/other_lib',include:['*.jar'])
+    compile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.codehaus.groovy:groovy-all:2.4.6'
+    testCompile 'org.springframework.boot:spring-boot-starter-test:2.1.4.RELEASE'
+
+}
+
+jar {
+    exclude 'application.properties'
+    exclude 'logback.groovy'
+    exclude 'database.sql'
+
+    manifest {
+        attributes 'Build-Date': new Date().format("yyyy-MM-dd HH:mm:ssZ"),
+                'Built-By': System.getProperty('user.name'),
+                'Built-JDK': System.getProperty('java.version'),
+                'Built-OS': "${System.getProperty('os.name')}/${System.getProperty('os.version')}",
+                'Source-Compatibility': sourceCompatibility,
+                'Target-Compatibility': targetCompatibility,
+                'Rev-Revision': version,
+                'Git-Revision': 'git rev-parse HEAD'.execute().text.trim(),
+                'Git-Branch': 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    }
+
+}
+
+task versionTag << {
+new File("${buildDir}/dist/classes/version.me").text = """Build-Date:${new Date().format("yyyy-MM-dd HH:mm:ss")}
+Built-By:${System.getProperty('user.name')}
+Built-JDK:${System.getProperty('java.version')}
+Built-OS:${System.getProperty('os.name')}/${System.getProperty('os.version')}
+Source-Compatibility:${sourceCompatibility}
+Target-Compatibility:${targetCompatibility}
+Rev-Revision:${version}
+Git-Revision:${'git rev-parse HEAD'.execute().text.trim()}
+Git-Branch:${'git rev-parse --abbrev-ref HEAD'.execute().text.trim()}
+"""
+}
+task life << {
+    println("run life, hello...")
+}
+versionTag.dependsOn("life")
+
+jar {
+    exclude 'application.properties'
+    exclude 'logback.groovy'
+
+    manifest {
+        attributes 'Build-Date': new Date().format("yyyy-MM-dd HH:mm:ssZ"),
+                'Built-By': System.getProperty('user.name'),
+                'Built-JDK': System.getProperty('java.version'),
+                'Built-OS': "${System.getProperty('os.name')}/${System.getProperty('os.version')}",
+                'Source-Compatibility': sourceCompatibility,
+                'Target-Compatibility': targetCompatibility,
+                'Rev-Revision': version,
+                'Git-Revision': 'git rev-parse HEAD'.execute().text.trim(),
+                'Git-Branch': 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    }
+
+    doFirst {
+        println("start create jar...")
+    }
+
+    doLast {
+        delete {
+            "$buildDir/dist"
+        }
+        copy {
+            from "$buildDir/libs"
+            from configurations.runtime
+            from System.properties.getProperty('java.home') + "/lib/ext/sunjce_provider.jar"
+            into "$buildDir/dist/lib"
+        }
+        copy {
+            from 'src/main/resources'
+            exclude 'template_parse_config'
+            into "$buildDir/dist/classes"
+        }
+        copy {
+            from 'server'
+            into "$buildDir/dist"
+        }
+    }
+
+    doLast {
+        println("create jar finished.")
+    }
+}
+
+task dist(dependsOn: [build, jar, versionTag]) {
+    versionTag.doLast {
+        println("create version.me success!")
+    }
+    println('package finished!')
+}
