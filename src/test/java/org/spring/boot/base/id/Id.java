@@ -11,9 +11,18 @@
 package org.spring.boot.base.id;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spring.boot.base.BaseTest;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Create with IntelliJ IDEA
@@ -52,6 +61,16 @@ public class Id extends BaseTest {
         System.out.println("顺序码:" + NumberUtils.toInt(id.substring(14,17)));
         System.out.println(NumberUtils.toInt(id.substring(14,17)) % 2 == 0 ? "女":"男");
         Assert.assertEquals(String.valueOf(id.toCharArray()[17]), String.valueOf(CHECK_CODE_LIST[mod]));
+        Period p = Period.between(LocalDate.of(2019, 5, 20), LocalDate.of(2019, 7, 6));
+        System.out.println(p.getYears());
+        System.out.println(p.getMonths());
+        System.out.println(p.getDays());
+        LocalDate d1 = LocalDate.now();
+        LocalDate d2 = LocalDate.of(2019, 7, 30);
+        System.out.println(ChronoUnit.DAYS.between(d1, d2));
+        LocalTime t1 = LocalTime.now();
+        LocalTime t2 = LocalTime.of(19, 0, 0);
+        System.out.println(ChronoUnit.MINUTES.between(t1, t2));
     }
 
 }
